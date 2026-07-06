@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FestOS | Premium Detailed Poster</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Export Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+        
+        /* Fix for the background not filling the bottom of the screen */
+        html, body {
+            background-color: #020617;
+            min-height: 100vh;
+            width: 100%;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 6rem 2rem 2rem; /* Space for the fixed toolbar */
+        }
+
+        /* --- EXPORT TOOLBAR --- */
+        .toolbar {
+            position: fixed;
+            top: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            display: flex;
+            gap: 1rem;
+            z-index: 1000;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            align-items: center;
+        }
+
+        .toolbar span {
+            color: white;
+            font-weight: 700;
+            margin-right: 1rem;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .btn-jpg { background: #4F46E5; color: white; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4); }
+        .btn-jpg:hover { background: #4338CA; transform: translateY(-2px); }
+        
+        .btn-pdf { background: #E11D48; color: white; box-shadow: 0 4px 15px rgba(225, 29, 72, 0.4); }
+        .btn-pdf:hover { background: #BE123C; transform: translateY(-2px); }
+
+        /* --- POSTER CONTAINER --- */
+        .poster-wrapper {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Fixed Dimensions (A4 Ratio) to ensure perfect high-res exports */
+        .poster {
+            width: 800px;
+            height: 1131px;
+            background: #0F172A;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transform-origin: top center;
+        }
+
+        /* Fix for scaling on smaller screens so it doesn't leave huge empty margins */
+        @media (max-width: 850px) {
+            .poster { transform: scale(0.75); margin-bottom: -282px; }
+        }
+        @media (max-width: 650px) {
+            .poster { transform: scale(0.45); margin-bottom: -622px; }
+            .toolbar { width: 95%; flex-direction: column; border-radius: 20px; }
+            .toolbar span { margin-right: 0; margin-bottom: 0.5rem; }
+            .btn { width: 100%; justify-content: center; }
+            body { padding-top: 13rem; }
+        }
+
+        /* --- POSTER STYLING & CONTENT --- */
+        .bg-image {
+            position: absolute;
+            inset: 0;
+            background-image: url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.25;
+            mix-blend-mode: overlay;
+        }
+
+        .bg-gradient {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(145deg, #0F172A 0%, rgba(30, 27, 75, 0.9) 40%, rgba(79, 70, 229, 0.85) 100%);
+        }
+
+        .content {
+            position: relative;
+            z-index: 10;
+            padding: 3rem; /* Reduced padding to ensure bottom fits */
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        /* Header */
+        .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; }
+        .brand { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 3rem; font-weight: 900; color: white; display: flex; align-items: center; gap: 0.75rem; letter-spacing: -0.03em; }
+        .version { background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.2); color: #818CF8; padding: 0.5rem 1.25rem; border-radius: 50px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+
+        /* Hook */
+        .hook h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 4.5rem; line-height: 0.95; font-weight: 900; color: white; margin-bottom: 1.25rem; letter-spacing: -0.03em; }
+        .text-gradient { background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hook p { font-size: 1.25rem; color: #CBD5E1; line-height: 1.5; font-weight: 400; max-width: 90%; margin-bottom: 2rem; }
+
+        /* Detailed Grid */
+        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: auto; }
+        
+        .detail-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.25rem;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-icon {
+            width: 40px; height: 40px; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 1.15rem; margin-bottom: 0.75rem;
+        }
+        
+        /* Specific Icon Colors */
+        .c1 { background: #3730A3; color: #A5B4FC; }
+        .c2 { background: #065F46; color: #6EE7B7; }
+        .c3 { background: #9F1239; color: #FDA4AF; }
+        .c4 { background: #92400E; color: #FCD34D; }
+        .c5 { background: #5B21B6; color: #D8B4FE; }
+        .c6 { background: #075985; color: #7DD3FC; }
+
+        .detail-card h3 { font-family: 'Plus Jakarta Sans', sans-serif; color: white; font-size: 1.15rem; margin-bottom: 0.4rem; font-weight: 800; }
+        .detail-card p { color: #94A3B8; font-size: 0.85rem; line-height: 1.5; margin-bottom: 0.75rem; }
+        
+        .feature-list { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
+        .feature-list li { color: #CBD5E1; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
+        .feature-list li i { color: #4F46E5; font-size: 0.7rem; }
+
+        /* Footer */
+        .poster-footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            padding-top: 1.5rem;
+            margin-top: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .tech { display: flex; align-items: center; gap: 0.75rem; color: #94A3B8; font-weight: 700; font-size: 1rem; letter-spacing: 0.05em; text-transform: uppercase; }
+        .website { font-family: 'Plus Jakarta Sans', sans-serif; color: white; font-weight: 900; font-size: 1.5rem; letter-spacing: -0.02em; }
+    </style>
+</head>
+<body>
+
+    <!-- EXPORT TOOLBAR -->
+    <div class="toolbar">
+        <span><i class="fa-solid fa-download"></i> Export Engine</span>
+        <button class="btn btn-jpg" onclick="downloadJPG()" id="btnJpg">
+            <i class="fa-solid fa-image"></i> Download High-Res JPG
+        </button>
+        <button class="btn btn-pdf" onclick="downloadPDF()" id="btnPdf">
+            <i class="fa-solid fa-file-pdf"></i> Download Print PDF
+        </button>
+    </div>
+
+    <!-- POSTER CONTAINER -->
+    <div class="poster-wrapper">
+        <div class="poster" id="poster-capture">
+            <div class="bg-image"></div>
+            <div class="bg-gradient"></div>
+
+            <div class="content">
+                <!-- Header -->
+                <div class="header">
+                    <div class="brand"><i class="fa-solid fa-bolt" style="color: #818CF8;"></i> FestOS</div>
+                    <div class="version">Enterprise Edition</div>
+                </div>
+
+                <!-- Hook -->
+                <div class="hook">
+                    <h1>Six Portals.<br><span class="text-gradient">One Ecosystem.</span></h1>
+                    <p>The definitive cloud architecture built to manage massive, high-stakes institutional festivals without a single piece of paper.</p>
+                </div>
+
+                <!-- Details Grid -->
+                <div class="detail-grid">
+                    <div class="detail-card">
+                        <div class="card-icon c1"><i class="fa-solid fa-server"></i></div>
+                        <h3>Master Data Center</h3>
+                        <p>Total architectural control over the database.</p>
+                        <ul class="feature-list">
+                            <li><i class="fa-solid fa-circle-check"></i> Full JSON Backup & Restore</li>
+                            <li><i class="fa-solid fa-circle-check"></i> Cross-Portal Branding Sync</li>
+                        </ul>
+                    </div>
+
+                    <div class="detail-card">
+                        <div class="card-icon c2"><i class="fa-solid fa-image"></i></div>
+                        <h3>Dynamic Poster Studio</h3>
+                        <p>Eliminate manual graphic design work instantly.</p>
+                        <ul class="feature-list">
+                            <li><i class="fa-solid fa-circle-check"></i> Drag & Drop Field Mapping</li>
+                            <li><i class="fa-solid fa-circle-check"></i> Auto-Renders Result Visuals</li>
+                        </ul>
+                    </div>
+
+                    <div class="detail-card">
+                        <div class="card-icon c3"><i class="fa-solid fa-microphone"></i></div>
+                        <h3>Stage Flow Control</h3>
+                        <p>Hardware-integrated queue management.</p>
+                        <ul class="feature-list">
+                            <li><i class="fa-solid fa-circle-check"></i> Mobile Camera QR Scanning</li>
+                            <li><i class="fa-solid fa-circle-check"></i> Live Announcer Dashboard Sync</li>
+                        </ul>
+                    </div>
+
+                    <div class="detail-card">
+                        <div class="card-icon c4"><i class="fa-solid fa-gavel"></i></div>
+                        <h3>Digital Valuation</h3>
+                        <p>Secure, paperless scoring for active judges.</p>
+                        <ul class="feature-list">
+                            <li><i class="fa-solid fa-circle-check"></i> Automated Average Calculation</li>
+                            <li><i class="fa-solid fa-circle-check"></i> Strict Max-Mark Protections</li>
+                        </ul>
+                    </div>
+
+                    <div class="detail-card">
+                        <div class="card-icon c5"><i class="fa-solid fa-users-gear"></i></div>
+                        <h3>Team Manager Matrix</h3>
+                        <p>Self-service student assignment portal.</p>
+                        <ul class="feature-list">
+                            <li><i class="fa-solid fa-circle-check"></i> Hard-Coded Participation Limits</li>
+                            <li><i class="fa-solid fa-circle-check"></i> Category Auto-Filtering</li>
+                        </ul>
+                    </div>
+
+                    <div class="detail-card">
+                        <div class="card-icon c6"><i class="fa-solid fa-chart-line"></i></div>
+                        <h3>Points Ledger Engine</h3>
+                        <p>Automated conversion from marks to points.</p>
+                        <ul class="feature-list">
+                            <li><i class="fa-solid fa-circle-check"></i> Configurable Standard Ratios</li>
+                            <li><i class="fa-solid fa-circle-check"></i> Bulk PDF Report Card Gen</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="poster-footer">
+                    <div class="tech">
+                        <i class="fa-solid fa-database"></i> Powered by Supabase
+                    </div>
+                    <div class="website">
+                        Initialize The System.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- EXPORT LOGIC -->
+    <script>
+        // Universal html2canvas configuration for high-quality renders
+        const exportConfig = {
+            scale: 3, // Multiplies the resolution by 3 for sharp printing
+            useCORS: true, 
+            allowTaint: true,
+            backgroundColor: "#0F172A"
+        };
+
+        const posterElement = document.getElementById('poster-capture');
+
+        // Function to set button loading states
+        function setButtonLoading(btnId, isLoading, originalText, iconClass) {
+            const btn = document.getElementById(btnId);
+            if (isLoading) {
+                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Processing...`;
+                btn.style.opacity = '0.7';
+                btn.disabled = true;
+            } else {
+                btn.innerHTML = `<i class="fa-solid ${iconClass}"></i> ${originalText}`;
+                btn.style.opacity = '1';
+                btn.disabled = false;
+            }
+        }
+
+        // --- EXPORT AS JPG ---
+        async function downloadJPG() {
+            setButtonLoading('btnJpg', true, 'Download High-Res JPG', 'fa-image');
+            
+            try {
+                const canvas = await html2canvas(posterElement, exportConfig);
+                const imageData = canvas.toDataURL("image/jpeg", 1.0); 
+                
+                const link = document.createElement('a');
+                link.download = 'FestOS_Premium_Poster.jpg';
+                link.href = imageData;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch (error) {
+                console.error("Error generating JPG:", error);
+                alert("Failed to generate JPG. Ensure your browser allows canvas reading.");
+            } finally {
+                setButtonLoading('btnJpg', false, 'Download High-Res JPG', 'fa-image');
+            }
+        }
+
+        // --- EXPORT AS PDF ---
+        async function downloadPDF() {
+            setButtonLoading('btnPdf', true, 'Download Print PDF', 'fa-file-pdf');
+
+            try {
+                const canvas = await html2canvas(posterElement, exportConfig);
+                const imageData = canvas.toDataURL("image/jpeg", 0.95);
+                
+                const pdf = new jspdf.jsPDF({
+                    orientation: "portrait",
+                    unit: "mm",
+                    format: "a4" 
+                });
+
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+                pdf.addImage(imageData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+                pdf.save("FestOS_Premium_Poster.pdf");
+            } catch (error) {
+                console.error("Error generating PDF:", error);
+                alert("Failed to generate PDF. Ensure your browser allows canvas reading.");
+            } finally {
+                setButtonLoading('btnPdf', false, 'Download Print PDF', 'fa-file-pdf');
+            }
+        }
+    </script>
+</body>
+</html>
