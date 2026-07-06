@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FestOS | The Ultimate Event Management Ecosystem</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 320 512%22><path fill=%22%234F46E5%22 d=%22M296 160H180.6l42.6-129.8C227.2 15 215.7 0 200 0H56C44 0 33.8 8.9 32.2 20.8l-32 240C-.5 273.6 9.3 288 24 288h118.7L96.6 482.5c-3.6 15.2 8 29.5 23.3 29.5 8.4 0 16.4-4.4 20.8-12l176-304c9.3-15.9-2.2-36-20.7-36z%22/></svg>">
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --primary-light: #EEF2FF;
+            --secondary: #0F172A;
+            --secondary-light: #1E293B;
+            --accent: #10B981;
+            --danger: #E11D48;
+            --warning: #F59E0B;
+            --bg-main: #F8FAFC;
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+            --border: #E2E8F0;
+            
+            --glass-bg: rgba(255, 255, 255, 0.8);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --glass-dark: rgba(15, 23, 42, 0.7);
+            
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+            --shadow-float: 0 30px 60px -12px rgba(79, 70, 229, 0.25);
+            
+            --container-width: 1400px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
+        body { background-color: var(--bg-main); color: var(--text-main); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+        h1, h2, h3, h4, h5, .brand-font { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        /* --- UTILITIES --- */
+        .container { max-width: var(--container-width); margin: 0 auto; padding: 0 5%; }
+        .text-gradient { background: linear-gradient(135deg, var(--primary) 0%, #a855f7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .badge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: rgba(79, 70, 229, 0.1); color: var(--primary); border-radius: 50px; font-weight: 700; font-size: 0.85rem; letter-spacing: 0.05em; text-transform: uppercase; border: 1px solid rgba(79, 70, 229, 0.2); }
+        
+        /* --- BUTTONS --- */
+        .btn { padding: 0.85rem 1.75rem; border-radius: 50px; font-weight: 700; font-size: 1rem; text-decoration: none; cursor: pointer; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); display: inline-flex; align-items: center; gap: 0.75rem; border: none; }
+        .btn-primary { background: var(--primary); color: white; box-shadow: 0 10px 20px -10px rgba(79, 70, 229, 0.5); }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-3px); box-shadow: var(--shadow-float); }
+        .btn-glass { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px); }
+        .btn-glass:hover { background: rgba(255,255,255,0.2); transform: translateY(-3px); }
+
+        /* --- NAVIGATION --- */
+        nav { position: fixed; top: 0; width: 100%; z-index: 1000; transition: all 0.3s ease; padding: 1.5rem 0; border-bottom: 1px solid transparent; }
+        nav.scrolled { background: var(--glass-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); padding: 1rem 0; border-bottom: 1px solid var(--glass-border); box-shadow: var(--shadow-sm); }
+        .nav-container { display: flex; justify-content: space-between; align-items: center; max-width: var(--container-width); margin: 0 auto; padding: 0 5%; }
+        .brand { font-size: 1.75rem; font-weight: 900; color: white; display: flex; align-items: center; gap: 0.5rem; text-decoration: none; transition: 0.3s; }
+        nav.scrolled .brand { color: var(--primary); }
+        .nav-links { display: flex; gap: 2.5rem; align-items: center; }
+        .nav-links a { text-decoration: none; color: rgba(255,255,255,0.8); font-weight: 600; font-size: 0.95rem; transition: 0.3s; }
+        .nav-links a:hover { color: white; }
+        nav.scrolled .nav-links a { color: var(--text-muted); }
+        nav.scrolled .nav-links a:hover { color: var(--primary); }
+        .mobile-btn { display: none; background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; }
+        nav.scrolled .mobile-btn { color: var(--secondary); }
+
+        /* --- HERO SECTION --- */
+        .hero { position: relative; min-height: 100vh; background: var(--secondary); display: flex; align-items: center; overflow: hidden; padding-top: 5rem; }
+        .hero-bg { position: absolute; inset: 0; background: radial-gradient(circle at top right, rgba(79, 70, 229, 0.2), transparent 40%), radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.1), transparent 40%); }
+        .hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; position: relative; z-index: 10; }
+        
+        .hero-content h1 { font-size: 4.5rem; line-height: 1.05; font-weight: 900; color: white; margin-bottom: 1.5rem; letter-spacing: -0.02em; }
+        .hero-content p { font-size: 1.25rem; color: #94A3B8; line-height: 1.6; margin-bottom: 2.5rem; max-width: 600px; }
+        
+        .hero-visual { perspective: 1000px; position: relative; }
+        .mockup-main { width: 110%; border-radius: 12px; box-shadow: 0 30px 60px -15px rgba(0,0,0,0.6); transform: rotateY(-12deg) rotateX(8deg) translateZ(0); transition: 0.5s; border: 1px solid rgba(255,255,255,0.1); animation: float 6s ease-in-out infinite alternate; }
+        .mockup-float { position: absolute; width: 45%; border-radius: 12px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); animation: float-delayed 7s ease-in-out infinite alternate; }
+        .mockup-float-1 { bottom: -10%; left: -10%; z-index: 2; transform: translateZ(50px); }
+        .mockup-float-2 { top: 10%; right: -20%; z-index: 0; transform: translateZ(-50px); width: 40%; }
+
+        /* --- ECOSYSTEM PORTALS (GRID) --- */
+        .ecosystem { padding: 8rem 0; background: white; position: relative; }
+        .section-header { text-align: center; max-width: 800px; margin: 0 auto 5rem; }
+        .section-header h2 { font-size: 3rem; color: var(--secondary); margin-bottom: 1rem; font-weight: 800; letter-spacing: -0.02em; }
+        .section-header p { font-size: 1.15rem; color: var(--text-muted); line-height: 1.6; }
+
+        .portal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2rem; }
+        
+        .portal-card { background: var(--bg-main); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 2.5rem; transition: var(--transition); position: relative; overflow: hidden; display: flex; flex-direction: column; height: 100%; }
+        .portal-card:hover { background: white; box-shadow: var(--shadow-lg); transform: translateY(-5px); border-color: var(--primary-light); }
+        .portal-icon { width: 60px; height: 60px; border-radius: 16px; display: flex; justify-content: center; align-items: center; font-size: 1.75rem; margin-bottom: 1.5rem; }
+        
+        .portal-card h3 { font-size: 1.5rem; color: var(--secondary); margin-bottom: 1rem; font-weight: 800; }
+        .portal-card p { color: var(--text-muted); line-height: 1.6; margin-bottom: 2rem; font-size: 1rem; flex: 1; }
+        .portal-features { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; }
+        .portal-features li { display: flex; align-items: center; gap: 0.75rem; font-size: 0.9rem; font-weight: 600; color: var(--secondary-light); }
+        .portal-features li i { color: var(--primary); }
+
+        /* Icon Colors */
+        .icon-admin { background: var(--primary-light); color: var(--primary); }
+        .icon-manager { background: #F3E8FF; color: #9333EA; }
+        .icon-stage { background: var(--success-light); color: var(--success); }
+        .icon-judge { background: #FEF3C7; color: #D97706; }
+        .icon-announcer { background: #FFE4E6; color: #E11D48; }
+        .icon-display { background: #E0F2FE; color: #0284C7; }
+
+        /* --- DEEP DIVE SECTIONS --- */
+        .feature-showcase { padding: 8rem 0; background: var(--bg-main); overflow: hidden; }
+        .showcase-row { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; margin-bottom: 8rem; }
+        .showcase-row:last-child { margin-bottom: 0; }
+        .showcase-row.reverse .showcase-content { order: 2; }
+        .showcase-row.reverse .showcase-visual { order: 1; }
+
+        .showcase-content h2 { font-size: 2.5rem; color: var(--secondary); margin-bottom: 1.25rem; font-weight: 800; line-height: 1.1; }
+        .showcase-content p { font-size: 1.15rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 2rem; }
+        
+        .check-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2.5rem; }
+        .check-item { display: flex; align-items: flex-start; gap: 0.75rem; }
+        .check-item i { color: var(--success); background: white; width: 24px; height: 24px; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: var(--shadow-sm); margin-top: 2px; }
+        .check-item span { font-weight: 600; color: var(--secondary); font-size: 0.95rem; }
+
+        .showcase-visual { position: relative; border-radius: 24px; box-shadow: var(--shadow-float); border: 1px solid var(--border); overflow: hidden; }
+        .showcase-visual img { width: 100%; display: block; object-fit: cover; }
+        .visual-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(15,23,42,0.8), transparent 50%); display: flex; align-items: flex-end; padding: 2rem; }
+        .visual-tag { background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); color: white; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 700; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.3); }
+
+        /* --- STATS & CTA --- */
+        .stats-cta { padding: 8rem 0; background: linear-gradient(135deg, var(--primary) 0%, #312E81 100%); color: white; text-align: center; position: relative; overflow: hidden; }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; max-width: 1000px; margin: 0 auto 5rem; }
+        .stat-box h4 { font-size: 4rem; font-weight: 900; margin-bottom: 0.5rem; background: linear-gradient(to bottom, #ffffff, #a5b4fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stat-box p { font-size: 1rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: rgba(255,255,255,0.7); }
+
+        /* --- FOOTER --- */
+        footer { background: #020617; color: white; padding: 5rem 0 2rem; border-top: 1px solid rgba(255,255,255,0.05); }
+        .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 4rem; margin-bottom: 4rem; }
+        .footer-col h5 { font-size: 1.1rem; font-weight: 800; margin-bottom: 1.5rem; color: white; }
+        .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; }
+        .footer-col a { color: #94A3B8; text-decoration: none; transition: 0.3s; font-size: 0.95rem; font-weight: 500; }
+        .footer-col a:hover { color: var(--primary-light); }
+        .footer-bottom { text-align: center; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.05); color: #64748B; font-size: 0.9rem; }
+
+        /* --- ANIMATIONS & RESPONSIVE --- */
+        @keyframes float { 0% { transform: translateY(0) rotateY(-12deg) rotateX(8deg); } 100% { transform: translateY(-20px) rotateY(-10deg) rotateX(10deg); } }
+        @keyframes float-delayed { 0% { transform: translateY(0); } 100% { transform: translateY(15px); } }
+        
+        .fade-up { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+        .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+        @media (max-width: 1024px) {
+            .hero-grid { grid-template-columns: 1fr; text-align: center; }
+            .hero-content p { margin: 0 auto 2.5rem; }
+            .hero-visual { margin-top: 4rem; perspective: none; }
+            .mockup-main { width: 90%; transform: none; animation: float-delayed 4s infinite alternate; margin: 0 auto; }
+            .mockup-float { display: none; }
+            .showcase-row { grid-template-columns: 1fr; gap: 3rem; }
+            .showcase-row.reverse .showcase-content { order: 1; }
+            .showcase-row.reverse .showcase-visual { order: 2; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .footer-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links { position: fixed; top: 70px; left: -100%; width: 100%; height: calc(100vh - 70px); background: var(--bg-main); flex-direction: column; justify-content: center; padding: 2rem; transition: 0.3s; }
+            .nav-links.active { left: 0; }
+            .nav-links a { color: var(--secondary); font-size: 1.25rem; }
+            .mobile-btn { display: block; }
+            .hero-content h1 { font-size: 3rem; }
+            .portal-grid { grid-template-columns: 1fr; }
+            .check-grid { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .footer-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVIGATION -->
+    <nav id="navbar">
+        <div class="nav-container">
+            <a href="#" class="brand"><i class="fa-solid fa-bolt" style="color: var(--primary);"></i> FestOS</a>
+            <div class="nav-links" id="navLinks">
+                <a href="#ecosystem">The Portals</a>
+                <a href="#studio">Poster Studio</a>
+                <a href="#datacenter">Data Center</a>
+                <a href="#points">Points Ledger</a>
+                <a href="login.html" class="btn btn-primary" style="color: white !important;"><i class="fa-solid fa-right-to-bracket"></i> System Login</a>
+            </div>
+            <button class="mobile-btn" id="mobileMenuBtn"><i class="fa-solid fa-bars"></i></button>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="container hero-grid">
+            <div class="hero-content fade-up">
+                <div class="badge" style="margin-bottom: 1.5rem; background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); color: white;">
+                    <i class="fa-solid fa-star" style="color: var(--warning);"></i> Premium Fest Architecture v6.0
+                </div>
+                <h1>Total Control.<br><span class="text-gradient">Infinite Scale.</span></h1>
+                <p>FestOS is a master-engineered ecosystem connecting Admins, Stage Controllers, Judges, and Team Managers into one perfectly synced, real-time database.</p>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: flex-start;">
+                    <a href="#ecosystem" class="btn btn-primary">Explore Portals <i class="fa-solid fa-arrow-down"></i></a>
+                    <a href="login.html" class="btn btn-glass"><i class="fa-solid fa-shield-halved"></i> Auth Access</a>
+                </div>
+            </div>
+            <div class="hero-visual fade-up" style="transition-delay: 0.2s;">
+                <!-- High Quality Dashboard Mockup from Unsplash -->
+                <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80" alt="FestOS Master Admin Dashboard" class="mockup-main">
+                <img src="https://images.unsplash.com/photo-1555421689-491a97ff2040?auto=format&fit=crop&w=600&q=80" alt="Judge Valuation Portal" class="mockup-float mockup-float-1">
+                <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80" alt="Data Analytics" class="mockup-float mockup-float-2">
+            </div>
+        </div>
+    </section>
+
+    <!-- THE 6 PORTALS ECOSYSTEM -->
+    <section id="ecosystem" class="ecosystem">
+        <div class="container">
+            <div class="section-header fade-up">
+                <h2>Six Portals. One Database.</h2>
+                <p>No more paper trails, no more WhatsApp groups. Every role in your festival gets a dedicated, highly-secured portal that speaks directly to the master cloud.</p>
+            </div>
+
+            <div class="portal-grid">
+                <!-- 1. Admin -->
+                <div class="portal-card fade-up">
+                    <div class="portal-icon icon-admin"><i class="fa-solid fa-shield-halved"></i></div>
+                    <h3>Master Admin</h3>
+                    <p>The core. Create categories, design competitions, register bulk participants via CSV, generate QR ID cards, and manage cross-portal permissions.</p>
+                    <ul class="portal-features">
+                        <li><i class="fa-solid fa-check"></i> Bulk CSV Upload & Export</li>
+                        <li><i class="fa-solid fa-check"></i> Participant ID Generation</li>
+                        <li><i class="fa-solid fa-check"></i> Global Fest Branding Sync</li>
+                    </ul>
+                </div>
+
+                <!-- 2. Team Manager -->
+                <div class="portal-card fade-up" style="transition-delay: 0.1s;">
+                    <div class="portal-icon icon-manager"><i class="fa-solid fa-users-gear"></i></div>
+                    <h3>Team Manager Hub</h3>
+                    <p>Give power back to the teams. Managers log in securely to self-assign their roster to competitions, strictly governed by Admin-defined participation limits.</p>
+                    <ul class="portal-features">
+                        <li><i class="fa-solid fa-check"></i> Self-Service Roster Allocation</li>
+                        <li><i class="fa-solid fa-check"></i> Hard-Coded Limit Protections</li>
+                        <li><i class="fa-solid fa-check"></i> Live Enrollment Tracking</li>
+                    </ul>
+                </div>
+
+                <!-- 3. Stage Controller -->
+                <div class="portal-card fade-up" style="transition-delay: 0.2s;">
+                    <div class="portal-icon icon-stage"><i class="fa-solid fa-microphone"></i></div>
+                    <h3>Stage Controller</h3>
+                    <p>Hardware-integrated flow control. Controllers scan participant ID cards using device cameras to log attendance and push real-time status updates.</p>
+                    <ul class="portal-features">
+                        <li><i class="fa-solid fa-check"></i> Camera-Based QR Scanning</li>
+                        <li><i class="fa-solid fa-check"></i> One-Click Status Pushing</li>
+                        <li><i class="fa-solid fa-check"></i> Live Chest-Number Assignment</li>
+                    </ul>
+                </div>
+
+                <!-- 4. Judge -->
+                <div class="portal-card fade-up" style="transition-delay: 0.3s;">
+                    <div class="portal-icon icon-judge"><i class="fa-solid fa-gavel"></i></div>
+                    <h3>Digital Valuation</h3>
+                    <p>Judges enter marks directly into their secure portal. The system automatically validates against max-marks and averages scores across multiple judges instantly.</p>
+                    <ul class="portal-features">
+                        <li><i class="fa-solid fa-check"></i> Automated Average Calculation</li>
+                        <li><i class="fa-solid fa-check"></i> Max-Mark Protections</li>
+                        <li><i class="fa-solid fa-check"></i> "Direct Valuation" Admin Bypass</li>
+                    </ul>
+                </div>
+
+                <!-- 5. Announcer -->
+                <div class="portal-card fade-up" style="transition-delay: 0.4s;">
+                    <div class="portal-icon icon-announcer"><i class="fa-solid fa-tower-broadcast"></i></div>
+                    <h3>Announcer Deck</h3>
+                    <p>The live pulse of the fest. Announcers view a constantly updating feed of exactly who is on stage, who is waiting, and immediate final results.</p>
+                    <ul class="portal-features">
+                        <li><i class="fa-solid fa-check"></i> Auto-Refreshing Queue List</li>
+                        <li><i class="fa-solid fa-check"></i> Stage-to-Announcer Sync</li>
+                        <li><i class="fa-solid fa-check"></i> Live Result Broadcasting</li>
+                    </ul>
+                </div>
+
+                <!-- 6. Display / Results -->
+                <div class="portal-card fade-up" style="transition-delay: 0.5s;">
+                    <div class="portal-icon icon-display"><i class="fa-solid fa-desktop"></i></div>
+                    <h3>Live Results Engine</h3>
+                    <p>A beautiful public-facing display that automatically generates graphic posters for winners, team standings, and final point ledgers without Photoshop.</p>
+                    <ul class="portal-features">
+                        <li><i class="fa-solid fa-check"></i> Auto-Generated Visual Posters</li>
+                        <li><i class="fa-solid fa-check"></i> Real-time Team Point Graphs</li>
+                        <li><i class="fa-solid fa-check"></i> Mobile-Friendly Public Link</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DEEP DIVE: POSTER STUDIO -->
+    <section id="studio" class="feature-showcase">
+        <div class="container">
+            <div class="showcase-row">
+                <div class="showcase-content fade-up">
+                    <div class="badge" style="margin-bottom: 1rem;"><i class="fa-solid fa-image"></i> Dynamic Canvas Engine</div>
+                    <h2>The Premium Poster Studio</h2>
+                    <p>Stop manually creating graphics for every single winner. The FestOS Poster Studio allows you to map database fields directly onto your custom background images.</p>
+                    
+                    <div class="check-grid">
+                        <div class="check-item"><i class="fa-solid fa-layer-group"></i> <span>Advanced Layer Management</span></div>
+                        <div class="check-item"><i class="fa-solid fa-font"></i> <span>Custom .TTF Font Uploads</span></div>
+                        <div class="check-item"><i class="fa-solid fa-crop"></i> <span>Dynamic Participant Photos</span></div>
+                        <div class="check-item"><i class="fa-solid fa-hand-pointer"></i> <span>Drag, Drop & Resize UI</span></div>
+                    </div>
+                    
+                    <p style="font-size: 0.95rem; color: var(--text-muted); border-left: 3px solid var(--primary); padding-left: 1rem;">
+                        <em>Configure Individual, Team, Final, and ID Card templates. The system automatically pulls participant names, unique IDs, photos, and team names to render thousands of images in seconds.</em>
+                    </p>
+                </div>
+                <div class="showcase-visual fade-up">
+                    <img src="https://images.unsplash.com/photo-1626785774573-4b799315345d?auto=format&fit=crop&w=1000&q=80" alt="Graphic Design Studio">
+                    <div class="visual-overlay">
+                        <span class="visual-tag"><i class="fa-solid fa-wand-magic-sparkles"></i> Auto-Render Enabled</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DEEP DIVE: DATA CENTER -->
+            <div id="datacenter" class="showcase-row reverse">
+                <div class="showcase-content fade-up">
+                    <div class="badge" style="margin-bottom: 1rem; color: var(--danger); background: var(--danger-light); border-color: rgba(225,29,72,0.2);"><i class="fa-solid fa-server"></i> The Vault</div>
+                    <h2>Master Data Center</h2>
+                    <p>Your data belongs to you. The Master Data Center is a highly restricted zone requiring secondary password verification to execute system-critical operations.</p>
+                    
+                    <div class="check-grid">
+                        <div class="check-item"><i class="fa-solid fa-file-export"></i> <span>Full .ZIP JSON Export</span></div>
+                        <div class="check-item"><i class="fa-solid fa-file-import"></i> <span>Instant System Restore</span></div>
+                        <div class="check-item"><i class="fa-solid fa-skull-crossbones"></i> <span>Total Factory Wipes</span></div>
+                        <div class="check-item"><i class="fa-solid fa-shield-halved"></i> <span>Cross-Table Integrity</span></div>
+                    </div>
+
+                    <a href="#stats" class="btn btn-outline" style="border: 2px solid var(--border); padding: 0.75rem 1.5rem; font-weight: 700; color: var(--secondary); text-decoration: none; border-radius: 50px;">
+                        <i class="fa-solid fa-lock"></i> Secured by Supabase Cloud
+                    </a>
+                </div>
+                <div class="showcase-visual fade-up">
+                    <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1000&q=80" alt="Server Data Center">
+                    <div class="visual-overlay">
+                        <span class="visual-tag" style="background: rgba(225,29,72,0.8); border: none;"><i class="fa-solid fa-triangle-exclamation"></i> Master Admin Only</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DEEP DIVE: POINTS LEDGER -->
+            <div id="points" class="showcase-row">
+                <div class="showcase-content fade-up">
+                    <div class="badge" style="margin-bottom: 1rem; color: var(--success); background: var(--success-light); border-color: rgba(16,185,129,0.2);"><i class="fa-solid fa-chart-line"></i> Analytics</div>
+                    <h2>Participant Points Ledger</h2>
+                    <p>Never calculate totals manually again. The system automatically converts judged marks into scaled points based on Standard and General competition ratios.</p>
+                    
+                    <div class="check-grid">
+                        <div class="check-item"><i class="fa-solid fa-calculator"></i> <span>Automated Math Engine</span></div>
+                        <div class="check-item"><i class="fa-solid fa-file-pdf"></i> <span>Premium Report Cards (PDF)</span></div>
+                        <div class="check-item"><i class="fa-solid fa-trophy"></i> <span>Live Team Standings</span></div>
+                        <div class="check-item"><i class="fa-solid fa-sliders"></i> <span>Configurable Point Ratios</span></div>
+                    </div>
+                </div>
+                <div class="showcase-visual fade-up">
+                    <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1000&q=80" alt="Data Analytics Chart">
+                    <div class="visual-overlay">
+                        <span class="visual-tag"><i class="fa-solid fa-file-pdf"></i> Bulk Printing Enabled</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- STATS & CTA -->
+    <section id="stats" class="stats-cta">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-box fade-up">
+                    <h4 class="counter" data-target="100">0</h4>
+                    <p>% Cloud Synced</p>
+                </div>
+                <div class="stat-box fade-up" style="transition-delay: 0.1s;">
+                    <h4 class="counter" data-target="6">0</h4>
+                    <p>Active Portals</p>
+                </div>
+                <div class="stat-box fade-up" style="transition-delay: 0.2s;">
+                    <h4 class="counter" data-target="8">0</h4>
+                    <p>Database Tables</p>
+                </div>
+                <div class="stat-box fade-up" style="transition-delay: 0.3s;">
+                    <h4 class="counter" data-target="24">0</h4>
+                    <p>Hour Uptime</p>
+                </div>
+            </div>
+
+            <div class="fade-up" style="transition-delay: 0.4s; max-width: 700px; margin: 0 auto;">
+                <h2 style="font-size: 2.5rem; margin-bottom: 1rem; font-weight: 800;">Ready to execute your festival?</h2>
+                <p style="font-size: 1.15rem; color: rgba(255,255,255,0.8); margin-bottom: 2.5rem;">Access to the Master Admin and interconnected portals requires strict credentials.</p>
+                <a href="login.html" class="btn btn-glass" style="padding: 1rem 3rem; font-size: 1.25rem;"><i class="fa-solid fa-power-off"></i> Initialize FestOS</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <a href="#" class="brand" style="margin-bottom: 1rem;"><i class="fa-solid fa-bolt" style="color: var(--primary);"></i> FestOS</a>
+                    <p style="color: #64748B; line-height: 1.6; margin-bottom: 1.5rem; max-width: 300px;">The definitive, enterprise-grade architecture for managing complex institutional and cultural festivals seamlessly in the cloud.</p>
+                    <div style="display: flex; gap: 1rem;">
+                        <a href="#" style="color: white; font-size: 1.25rem;"><i class="fa-brands fa-github"></i></a>
+                        <a href="#" style="color: white; font-size: 1.25rem;"><i class="fa-solid fa-globe"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h5>The Portals</h5>
+                    <ul>
+                        <li><a href="login.html">Master Admin</a></li>
+                        <li><a href="login.html">Team Manager</a></li>
+                        <li><a href="login.html">Digital Valuation</a></li>
+                        <li><a href="login.html">Stage Controller</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h5>Core Engines</h5>
+                    <ul>
+                        <li><a href="#studio">Dynamic Poster Studio</a></li>
+                        <li><a href="#datacenter">Master Data Center</a></li>
+                        <li><a href="#points">Points Ledger & PDF</a></li>
+                        <li><a href="#features">ID Card Generator</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h5>System</h5>
+                    <ul>
+                        <li><a href="#">Supabase Architecture</a></li>
+                        <li><a href="#">Security Protocol</a></li>
+                        <li><a href="#">Deployment Guide</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                &copy; 2026 FestOS Enterprise Software. All Rights Reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- INTERACTIVE SCRIPTS -->
+    <script>
+        // Navbar Scroll Effect
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 50) nav.classList.add('scrolled');
+            else nav.classList.remove('scrolled');
+        });
+
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const navLinks = document.getElementById('navLinks');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            const icon = mobileMenuBtn.querySelector('i');
+            if (navLinks.classList.contains('active')) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-xmark');
+            } else {
+                icon.classList.remove('fa-xmark');
+                icon.classList.add('fa-bars');
+            }
+        });
+
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+                mobileMenuBtn.querySelector('i').classList.replace('fa-xmark', 'fa-bars');
+            });
+        });
+
+        // Fade Up Animation on Scroll (Intersection Observer)
+        const fadeElements = document.querySelectorAll('.fade-up');
+        const fadeObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    fadeObserver.unobserve(entry.target); // Only animate once
+                }
+            });
+        }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
+
+        fadeElements.forEach(el => fadeObserver.observe(el));
+
+        // Number Counter Animation
+        const counters = document.querySelectorAll('.counter');
+        const counterObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const target = entry.target;
+                    const endVal = parseInt(target.getAttribute('data-target'));
+                    const duration = 2000; 
+                    let startTimestamp = null;
+                    
+                    const step = (timestamp) => {
+                        if (!startTimestamp) startTimestamp = timestamp;
+                        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                        target.innerText = Math.floor(progress * endVal);
+                        if (progress < 1) window.requestAnimationFrame(step);
+                        else target.innerText = endVal; // Ensure exact end
+                    };
+                    window.requestAnimationFrame(step);
+                    counterObserver.unobserve(target);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        counters.forEach(c => counterObserver.observe(c));
+    </script>
+</body>
+</html>
